@@ -1,0 +1,250 @@
+/* src/Pages/LoginPage.css */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+  padding: 20px;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.5s ease-out;
+  position: relative;
+}
+
+.back-to-home {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: #2E7D32;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+}
+
+.back-to-home:hover {
+  color: #1B5E20;
+  text-decoration: underline;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card h2 {
+  color: #2E7D32;
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: #2E7D32;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.auth-card input::placeholder {
+  color: #999;
+}
+
+.auth-card button {
+  width: 100%;
+  padding: 14px;
+  background: #2E7D32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  min-height: 48px;
+}
+
+.auth-card button:hover {
+  background: #1B5E20;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
+}
+
+.toggle-text {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.toggle-text span {
+  color: #2E7D32;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 5px;
+  transition: all 0.3s ease;
+}
+
+.toggle-text span:hover {
+  color: #1B5E20;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .auth-card {
+    padding: 30px;
+    margin: 20px;
+  }
+  
+  .auth-card h2 {
+    font-size: 24px;
+    margin-top: 10px;
+  }
+  
+  .back-to-home {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin-bottom: 10px;
+    display: inline-block;
+  }
+  
+  .auth-card input {
+    padding: 12px;
+    font-size: 15px;
+  }
+  
+  .auth-card button {
+    padding: 12px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-container {
+    padding: 10px;
+  }
+  
+  .auth-card {
+    padding: 25px 20px;
+    border-radius: 12px;
+  }
+  
+  .auth-card h2 {
+    font-size: 22px;
+  }
+  
+  .subtitle {
+    font-size: 13px;
+    margin-bottom: 25px;
+  }
+  
+  .auth-card input {
+    padding: 12px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  
+  .auth-card button {
+    padding: 12px;
+    font-size: 15px;
+  }
+  
+  .toggle-text {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 400px) {
+  .auth-card {
+    padding: 20px 15px;
+  }
+  
+  .auth-card h2 {
+    font-size: 20px;
+  }
+  
+  .auth-card input {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .auth-card button {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+
+/* Landscape Orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+  .auth-container {
+    align-items: flex-start;
+    padding-top: 20px;
+    min-height: auto;
+  }
+  
+  .auth-card {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .auth-card input,
+  .auth-card button,
+  .toggle-text span,
+  .back-to-home {
+    min-height: 44px;
+  }
+  
+  .auth-card button:active {
+    background: #1B5E20;
+    transform: scale(0.98);
+  }
+}
