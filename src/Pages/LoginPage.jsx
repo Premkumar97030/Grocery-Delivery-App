@@ -165,7 +165,7 @@ const LoginPage = () => {
         {/* Grocery App Branding */}
         <div className="grocery-hero">
           <div className="grocery-icon">🛒</div>
-          <div className="app-name">FreshCart Express</div>
+          <div className="app-name">FreshMart</div>
           <div className="app-tagline">Your groceries, delivered fresh</div>
         </div>
 

@@ -1,4 +1,4 @@
-// src/Pages/Home.jsx
+// src/Pages/Home.jsx - UPDATED
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -15,6 +15,15 @@ const Home = () => {
   const popularProducts = getPopularProducts(6);
   const discountedProducts = getDiscountedProducts(6);
   const featuredCategories = categories.slice(0, 6);
+
+  // Limited categories for dropdown (only 5 main categories)
+  const dropdownCategories = [
+    categories.find(c => c.id === "fruits"),
+    categories.find(c => c.id === "vegetables"),
+    categories.find(c => c.id === "dairy"),
+    categories.find(c => c.id === "bakery"),
+    categories.find(c => c.id === "beverages")
+  ].filter(Boolean); // Remove any undefined categories
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -124,11 +133,11 @@ const Home = () => {
             
             <div className="nav-dropdown">
               <button className="nav-link">
-                <span className="nav-icon">📦</span> Categories
+                <span className="nav-icon">📦</span> Top Categories
                 <span className="dropdown-arrow">▼</span>
               </button>
               <div className="dropdown-content">
-                {categories.map((category) => (
+                {dropdownCategories.map((category) => (
                   <Link
                     key={category.id}
                     to={`/products/${category.id}`}
@@ -139,6 +148,15 @@ const Home = () => {
                     <span>{category.name} ({category.count})</span>
                   </Link>
                 ))}
+                {/* View All Categories Link */}
+                <Link
+                  to="/products/all"
+                  className="dropdown-item view-all-categories"
+                  onClick={closeMobileMenu}
+                >
+                  <span className="dropdown-icon">📋</span>
+                  <span>View All Categories →</span>
+                </Link>
               </div>
             </div>
             
@@ -237,11 +255,11 @@ const Home = () => {
                 aria-expanded={isCategoriesOpen}
               >
                 <span className="mobile-nav-icon">📦</span>
-                Categories
-                <span className="categories-count">{categories.length}</span>
+                Top Categories
+                <span className="categories-count">{dropdownCategories.length}</span>
               </button>
               <div className={`mobile-categories-content ${isCategoriesOpen ? 'open' : ''}`}>
-                {categories.map(category => (
+                {dropdownCategories.map(category => (
                   <Link
                     key={category.id}
                     to={`/products/${category.id}`}
@@ -255,6 +273,16 @@ const Home = () => {
                     </span>
                   </Link>
                 ))}
+                {/* View All Categories Link */}
+                <Link
+                  to="/products/all"
+                  className="mobile-category-item view-all-link"
+                  onClick={closeMobileMenu}
+                >
+                  <span className="category-icon-small">📋</span>
+                  View All Categories
+                  <span className="view-all-arrow">→</span>
+                </Link>
               </div>
             </div>
 
@@ -304,14 +332,14 @@ const Home = () => {
         <div className="hero-container">
           <div className="hero-content">
             <div className="hero-text">
-              <div className="hero-tag">⭐ 250+ Products • 18 Categories • 30-min Delivery</div>
+              <div className="hero-tag">⭐ 350+ Products • 18 Categories • 30-min Delivery</div>
               <h1 className="hero-title">
                 Fresh Groceries Delivered
                 in 30 Minutes
                 <span className="hero-highlight"></span>
               </h1>
               <p className="hero-description">
-                From fresh produce to household essentials, discover 250+ quality products across 18 categories. 
+                From fresh produce to household essentials, discover 350+ quality products across 18 categories. 
                 All delivered fresh in 30 minutes or less! Quality guaranteed!
               </p>
               <div className="hero-buttons">
@@ -334,7 +362,7 @@ const Home = () => {
                   <div className="stat-label">Fast Delivery</div>
                 </div>
                 <div className="stat-item">
-                  <div className="stat-number">500+</div>
+                  <div className="stat-number">350+</div>
                   <div className="stat-label">Products</div>
                 </div>
               </div>
@@ -359,7 +387,7 @@ const Home = () => {
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Shop by Category</h2>
-            <p className="section-subtitle">18 categories • 250+ products</p>
+            <p className="section-subtitle">18 categories • 350+ products</p>
             <Link to="/products/all" className="view-all">View All Categories →</Link>
           </div>
           <div className="categories-grid">
@@ -531,7 +559,7 @@ const Home = () => {
             <div className="feature-card">
               <div className="feature-icon">⭐</div>
               <h3>Quality Guaranteed</h3>
-              <p>250+ quality products</p>
+              <p>350+ quality products</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">⚡</div>
@@ -554,7 +582,7 @@ const Home = () => {
                     FreshMart
                   </h3>
                   <p className="footer-description">
-                    250+ products across 18 categories. Fresh groceries delivered fast since 2020.
+                    350+ products across 18 categories. Fresh groceries delivered fast since 2020.
                   </p>
                   <div className="social-icons">
                     <a href="#" className="social-icon">📘</a>
@@ -566,15 +594,16 @@ const Home = () => {
               </div>
               <div className="footer-links">
                 <h4>Top Categories</h4>
-                {categories.slice(0, 6).map(cat => (
+                {dropdownCategories.map(cat => (
                   <Link key={cat.id} to={`/products/${cat.id}`}>
                     {cat.name} ({cat.count})
                   </Link>
                 ))}
+                <Link to="/products/all">View All Categories</Link>
               </div>
               <div className="footer-links">
                 <h4>Help & Support</h4>
-                <Link to="/track-order">Track Order</Link>
+                <Link to="/trackorder">Track Order</Link>
                 <a href="#">Shipping & Delivery</a>
                 <a href="#">Returns & Refunds</a>
                 <Link to="/contact">Contact Us</Link>
@@ -583,7 +612,7 @@ const Home = () => {
               </div>
               <div className="footer-contact">
                 <h4>Stay Updated</h4>
-                <p>Subscribe for exclusive offers on 250+ products</p>
+                <p>Subscribe for exclusive offers on 350+ products</p>
                 <form className="newsletter-form">
                   <input type="email" placeholder="Your email address" />
                   <button type="submit">Subscribe</button>
@@ -605,7 +634,7 @@ const Home = () => {
               </div>
             </div>
             <div className="footer-bottom">
-              <p>© 2024 FreshMart. 250+ Products • 18 Categories • 30-min Delivery Guarantee</p>
+              <p>© 2024 FreshMart. 350+ Products • 18 Categories • 30-min Delivery Guarantee</p>
               <div className="payment-methods">
                 <span>💳</span>
                 <span>🏦</span>
