@@ -1,7 +1,7 @@
-// src/Pages/TrackOrder.jsx - FIXED VERSION
+// src/Pages/TrackOrder.jsx - COMPLETE REWRITE WITH PERFECT LIVE MAP
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext"; // Import CartContext
+import { useCart } from "../context/CartContext";
 import "./TrackOrder.css";
 
 const TrackOrder = () => {
@@ -11,15 +11,14 @@ const TrackOrder = () => {
   const [orderHistory, setOrderHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [trackError, setTrackError] = useState("");
-  const [liveLocation, setLiveLocation] = useState({ lat: 28.6139, lng: 77.2090 });
-  const [timeLeft, setTimeLeft] = useState(30);
-  const [isLiveTracking, setIsLiveTracking] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(25);
+  const [progressPercent, setProgressPercent] = useState(70);
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { cartItems, subtotal, deliveryCharge, cartCount } = useCart();
+  const { cartItems, cartCount } = useCart();
 
-  // Sample order history for demonstration (you can replace with actual API data)
+  // Sample order history
   const sampleOrders = [
     {
       id: "FRESH-2024-12345",
@@ -48,8 +47,36 @@ const TrackOrder = () => {
           rating: "4.8",
           photo: "👨‍🍳"
         },
-        estimatedDelivery: "11:00 AM",
-        actualDelivery: "11:00 AM"
+        estimatedDelivery: "11:00 AM"
+      }
+    },
+    {
+      id: "FRESH-2024-12346",
+      date: "Yesterday, 03:15 PM",
+      total: 899.00,
+      status: "delivered",
+      deliveryTime: "Delivered in 28 mins",
+      items: [
+        { name: "Bananas", quantity: 6, price: 30, image: "🍌", category: "fruits" },
+        { name: "Eggs", quantity: 12, price: 60, image: "🥚", category: "dairy" }
+      ],
+      address: "456 Park Ave, New Delhi 110002",
+      paymentMethod: "Credit Card",
+      tracking: {
+        stages: [
+          { id: 1, name: "Order Placed", status: "completed", time: "03:15 PM", icon: "📝" },
+          { id: 2, name: "Order Confirmed", status: "completed", time: "03:17 PM", icon: "✅" },
+          { id: 3, name: "Picked Up", status: "completed", time: "03:25 PM", icon: "📦" },
+          { id: 4, name: "On the Way", status: "completed", time: "03:30 PM", icon: "🚚" },
+          { id: 5, name: "Delivered", status: "completed", time: "03:43 PM", icon: "🏠" }
+        ],
+        deliveryPerson: {
+          name: "Priya Singh",
+          phone: "+91 98765 43211",
+          rating: "4.9",
+          photo: "👩‍🍳"
+        },
+        estimatedDelivery: "03:43 PM"
       }
     }
   ];
@@ -58,31 +85,26 @@ const TrackOrder = () => {
     // Load order history on mount
     setOrderHistory(sampleOrders);
     
-    // Check for order data from navigation state (coming from checkout)
+    // Check for order data from navigation state
     if (location.state?.cartItems) {
-      // Create an active order from checkout data
       createOrderFromCheckout(location.state);
     } else if (location.state?.orderId) {
-      // If coming from checkout with just orderId, track it
       setOrderId(location.state.orderId);
       handleTrackOrder(null, location.state.orderId);
     }
 
-    // Live tracking simulation
-    if (isLiveTracking) {
-      const interval = setInterval(() => {
-        setLiveLocation(prev => ({
-          lat: prev.lat + 0.001,
-          lng: prev.lng + 0.001
-        }));
-        setTimeLeft(prev => Math.max(0, prev - 1));
-      }, 30000);
+    // Progress animation for live tracking
+    const progressInterval = setInterval(() => {
+      setProgressPercent(prev => {
+        if (prev >= 95) return 95;
+        return prev + 0.5;
+      });
+      setTimeLeft(prev => Math.max(0, prev - 0.5));
+    }, 10000);
 
-      return () => clearInterval(interval);
-    }
-  }, [location, isLiveTracking]);
+    return () => clearInterval(progressInterval);
+  }, [location]);
 
-  // Function to create order from checkout data
   const createOrderFromCheckout = (checkoutData) => {
     const newOrderId = `FRESH-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
     const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -91,8 +113,8 @@ const TrackOrder = () => {
       id: newOrderId,
       date: `Today, ${currentTime}`,
       total: checkoutData.finalTotal || checkoutData.subtotal + checkoutData.deliveryCharge,
-      status: "preparing",
-      deliveryTime: "Preparing your order",
+      status: "on_the_way",
+      deliveryTime: `${timeLeft} mins left`,
       items: checkoutData.cartItems.map(item => ({
         name: item.name,
         quantity: item.quantity,
@@ -106,19 +128,24 @@ const TrackOrder = () => {
         stages: [
           { id: 1, name: "Order Placed", status: "completed", time: currentTime, icon: "📝" },
           { id: 2, name: "Order Confirmed", status: "completed", time: currentTime, icon: "✅" },
-          { id: 3, name: "Picked Up", status: "active", icon: "📦" },
-          { id: 4, name: "On the Way", status: "pending", icon: "🚚" },
-          { id: 5, name: "Delivered", status: "pending", icon: "🏠" }
+          { id: 3, name: "Picked Up", status: "completed", time: currentTime, icon: "📦" },
+          { id: 4, name: "On the Way", status: "active", time: currentTime, icon: "🚚" },
+          { id: 5, name: "Delivered", status: "pending", time: calculateETA(), icon: "🏠" }
         ],
+        deliveryPerson: {
+          name: "Amit Kumar",
+          phone: "+91 98765 43212",
+          rating: "4.7",
+          photo: "👨‍🍳",
+          location: "0.8 km away"
+        },
         estimatedDelivery: calculateETA(),
-        preparationTime: "10 mins remaining"
+        currentLocation: "Near your location"
       }
     };
     
     setActiveOrder(order);
     setOrderId(newOrderId);
-    
-    // Add to order history
     setOrderHistory(prev => [order, ...prev]);
   };
 
@@ -149,15 +176,9 @@ const TrackOrder = () => {
       
       if (foundOrder) {
         setActiveOrder(foundOrder);
-        if (foundOrder.status === "on_the_way") {
-          setIsLiveTracking(true);
-        }
       } else {
-        // Create a new demo order
         const demoOrder = createDemoOrder(trackId);
         setActiveOrder(demoOrder);
-        setIsLiveTracking(true);
-        // Add to history
         setOrderHistory(prev => [demoOrder, ...prev]);
       }
       setIsLoading(false);
@@ -172,7 +193,7 @@ const TrackOrder = () => {
       date: `Today, ${currentTime}`,
       total: calculateOrderTotal(cartItems),
       status: "on_the_way",
-      deliveryTime: "25 mins left",
+      deliveryTime: `${timeLeft} mins left`,
       items: cartItems.length > 0 ? cartItems.map(item => ({
         name: item.name,
         quantity: item.quantity,
@@ -181,7 +202,8 @@ const TrackOrder = () => {
         category: item.category || "general"
       })) : [
         { name: "Mixed Fruits Basket", quantity: 1, price: 499, image: "🍎", category: "fruits" },
-        { name: "Fresh Bread", quantity: 2, price: 80, image: "🍞", category: "bakery" }
+        { name: "Fresh Bread", quantity: 2, price: 80, image: "🍞", category: "bakery" },
+        { name: "Organic Milk", quantity: 1, price: 60, image: "🥛", category: "dairy" }
       ],
       address: "Your delivery address",
       paymentMethod: "Online Payment",
@@ -207,7 +229,7 @@ const TrackOrder = () => {
   };
 
   const calculateOrderTotal = (items) => {
-    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return items.reduce((total, item) => total + (item.price * item.quantity), 0) || 639.00;
   };
 
   const getStatusConfig = (status) => {
@@ -250,7 +272,6 @@ const TrackOrder = () => {
 
   const handleReorder = (order) => {
     alert(`Added ${order.items.length} items from order ${order.id} to cart!`);
-    // In a real app, you would add items to cart here
     navigate('/cart');
   };
 
@@ -318,29 +339,70 @@ const TrackOrder = () => {
           </div>
         </div>
         <div className="map-placeholder">
-          <div className="map-overlay">
-            <div className="map-point delivery-point">
-              <div className="point-icon">🚚</div>
-              <div className="point-label">Delivery Partner</div>
+          <div className="map-grid"></div>
+          <div className="map-content">
+            {/* Points Container */}
+            <div className="points-container">
+              {/* Delivery Point */}
+              <div className="map-point delivery-point">
+                <div className="point-icon delivery-icon">
+                  🚚
+                </div>
+                <div className="point-label">Delivery Partner</div>
+              </div>
+
+              {/* Destination Point */}
+              <div className="map-point destination-point">
+                <div className="point-icon destination-icon">
+                  🏠
+                </div>
+                <div className="point-label">Your Location</div>
+              </div>
             </div>
-            <div className="map-point destination-point">
-              <div className="point-icon">🏠</div>
-              <div className="point-label">Your Location</div>
+
+            {/* Connection Line */}
+            <div className="connection-line">
+              <div className="line-flow"></div>
             </div>
-            <div className="route-line"></div>
-          </div>
-          <div className="map-stats">
-            <div className="stat-item">
-              <div className="stat-label">Distance</div>
-              <div className="stat-value">0.8 km</div>
+
+            Moving Delivery Truck
+            <div className="moving-delivery">
+              <div className="truck-path"></div>
+              <div className="delivery-truck">
+                
+              </div>
             </div>
-            <div className="stat-item">
-              <div className="stat-label">ETA</div>
-              <div className="stat-value">{timeLeft} mins</div>
+
+            {/* Progress Indicator */}
+            <div className="delivery-progress">
+              <div className="progress-container">
+                <div className="progress-labels">
+                  <span className="progress-label">Warehouse</span>
+                  <span className="progress-label">Your Home</span>
+                </div>
+                <div className="progress-bar">
+                  <div 
+                    className="progress-fill" 
+                    style={{ width: `${progressPercent}%` }}
+                  ></div>
+                </div>
+              </div>
             </div>
-            <div className="stat-item">
-              <div className="stat-label">Speed</div>
-              <div className="stat-value">Normal</div>
+
+            {/* Map Stats */}
+            <div className="map-stats">
+              <div className="map-stat-item">
+                <div className="map-stat-label">Distance</div>
+                <div className="map-stat-value">0.8 km</div>
+              </div>
+              <div className="map-stat-item">
+                <div className="map-stat-label">ETA</div>
+                <div className="map-stat-value">{Math.round(timeLeft)} mins</div>
+              </div>
+              <div className="map-stat-item">
+                <div className="map-stat-label">Progress</div>
+                <div className="map-stat-value">{Math.round(progressPercent)}%</div>
+              </div>
             </div>
           </div>
         </div>
@@ -376,22 +438,20 @@ const TrackOrder = () => {
         <div className="container">
           {/* Hero Section */}
           <div className="track-hero">
-            <div className="hero-content">
-              <h1 className="hero-title">Track Your Order</h1>
-              <p className="hero-subtitle">Real-time updates on your grocery delivery</p>
-              <div className="hero-stats">
-                <div className="stat">
-                  <div className="stat-number">30-min</div>
-                  <div className="stat-label">Delivery Promise</div>
-                </div>
-                <div className="stat">
-                  <div className="stat-number">Live</div>
-                  <div className="stat-label">Tracking Updates</div>
-                </div>
-                <div className="stat">
-                  <div className="stat-number">24/7</div>
-                  <div className="stat-label">Support</div>
-                </div>
+            <h1 className="hero-title">Track Your Order</h1>
+            <p className="hero-subtitle">Real-time updates on your grocery delivery</p>
+            <div className="hero-stats">
+              <div className="stat">
+                <div className="stat-number">30-min</div>
+                <div className="stat-label">Delivery Promise</div>
+              </div>
+              <div className="stat">
+                <div className="stat-number">Live</div>
+                <div className="stat-label">Tracking Updates</div>
+              </div>
+              <div className="stat">
+                <div className="stat-number">24/7</div>
+                <div className="stat-label">Support</div>
               </div>
             </div>
           </div>
@@ -504,7 +564,7 @@ const TrackOrder = () => {
 
               {/* Tracking Progress */}
               <div className="tracking-card">
-                <div className="card-header">
+                <div className="tracking-card-header">
                   <h3>Delivery Progress</h3>
                   <div className="eta-display">
                     ETA: <span className="eta-time">{activeOrder.tracking.estimatedDelivery}</span>
@@ -563,7 +623,7 @@ const TrackOrder = () => {
                           <div className="item-category">{item.category}</div>
                         </div>
                         <div className="item-quantity">×{item.quantity}</div>
-                        <div className="item-price">₹{item.price * item.quantity}</div>
+                        <div className="item-price">₹{(item.price * item.quantity).toFixed(2)}</div>
                       </div>
                     ))}
                   </div>
@@ -630,7 +690,7 @@ const TrackOrder = () => {
                     className="order-card"
                     onClick={() => handleViewOrderDetails(order.id)}
                   >
-                    <div className="card-header">
+                    <div className="order-card-header">
                       <div className="order-id">{order.id}</div>
                       <div 
                         className="order-status"
@@ -654,7 +714,7 @@ const TrackOrder = () => {
                               <span>{item.image || "🛒"}</span>
                             )}
                           </span>
-                          <span className="item-name">{item.name}</span>
+                          <span className="item-preview-name">{item.name}</span>
                         </div>
                       ))}
                       {order.items.length > 3 && (
